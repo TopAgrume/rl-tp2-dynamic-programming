@@ -26,6 +26,19 @@ def mdp_value_iteration(mdp: MDP, max_iter: int = 1000, gamma=1.0) -> np.ndarray
     """
     values = np.zeros(mdp.observation_space.n)
     # BEGIN SOLUTION
+    for _ in range(max_iter):
+        delta = 0
+        for state in range(mdp.observation_space.n):
+            v = values[state]
+            action_values = []
+            for action in range(mdp.action_space.n):
+                next_state, reward, _ = mdp.P[state][action]
+                action_values.append(reward + gamma * values[next_state])
+            values[state] = max(action_values)
+            delta = max(delta, abs(v - values[state]))
+
+        if delta < 1e-6:
+            break
     # END SOLUTION
     return values
 
@@ -42,6 +55,25 @@ def grid_world_value_iteration(
     """
     values = np.zeros((4, 4))
     # BEGIN SOLUTION
+    for _ in range(max_iter):
+        delta = 0
+        for row in range(4):
+            for col in range(4):
+                if env.grid[row][col] == "W":
+                    continue
+
+                v = values[row, col]
+                action_values = []
+                for action in range(env.action_space.n):
+                    env.current_position = (row, col)
+                    next_state, reward, _, _ = env.step(action)
+                    next_row, next_col = next_state
+                    action_values.append(reward + gamma * values[next_row, next_col])
+                values[row, col] = max(action_values)
+                delta = max(delta, abs(v - values[row, col]))
+        if delta < theta:
+            break
+    return values
     # END SOLUTION
 
 
@@ -72,3 +104,4 @@ def stochastic_grid_world_value_iteration(
 ) -> np.ndarray:
     values = np.zeros((4, 4))
     # BEGIN SOLUTION
+    # END SOLUTION
