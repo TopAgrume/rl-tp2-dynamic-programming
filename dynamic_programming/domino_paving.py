@@ -18,4 +18,19 @@ def domino_paving(n: int) -> int:
     """
     a = 0
     # BEGIN SOLUTION
+    if n % 2 != 0 or n == 0:
+        return 0
+    elif n == 2:
+        return 3
+
+    # We now consider n as multiple of 2
+    n = n // 2
+    dp = [1] * (n + 1)
+    dp[1] = 3
+
+    # Pattern 4 * (N-2) - (N-4)
+    for i in range(2, n + 1):
+        dp[i] = 4 * dp[i - 1] - dp[i - 2]
+
+    return dp[-1]
     # END SOLUTION
