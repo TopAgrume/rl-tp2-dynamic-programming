@@ -57,22 +57,27 @@ def grid_world_value_iteration(
     # BEGIN SOLUTION
     for _ in range(max_iter):
         delta = 0
-        for row in range(4):
-            for col in range(4):
-                if env.grid[row][col] == "W":
+        for row in range(env.height):
+            for col in range(env.width):
+                # Avoid walls
+                if env.grid[row][col] in ["W", "P", "N"]:
                     continue
 
-                v = values[row, col]
                 action_values = []
+                v = values[row, col]
+
                 for action in range(env.action_space.n):
                     env.current_position = (row, col)
                     next_state, reward, _, _ = env.step(action)
                     next_row, next_col = next_state
                     action_values.append(reward + gamma * values[next_row, next_col])
+
                 values[row, col] = max(action_values)
                 delta = max(delta, abs(v - values[row, col]))
+
         if delta < theta:
             break
+
     return values
     # END SOLUTION
 
@@ -104,4 +109,27 @@ def stochastic_grid_world_value_iteration(
 ) -> np.ndarray:
     values = np.zeros((4, 4))
     # BEGIN SOLUTION
+    for _ in range(max_iter):
+        delta = 0
+        prev_val = values.copy()
+        for row in range(env.height):
+            for col in range(env.width):
+                # Avoid walls
+                if env.grid[row][col] in ["W", "P", "N"]:
+                    continue
+
+                env.set_state(row, col)
+                sub_delta = value_iteration_per_state(
+                    env=env,
+                    values=values,
+                    gamma=gamma,
+                    prev_val=prev_val,
+                    delta=theta
+                )
+                delta = max(delta, sub_delta)
+
+        if delta < theta:
+            break
+
+    return values
     # END SOLUTION
